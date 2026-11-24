@@ -37,6 +37,7 @@ EduAlert_project/
 
 ```bash
 cd EduAlert/backend
+node server.js
 
 # Start the server (runs on http://localhost:5001)
 npm start
