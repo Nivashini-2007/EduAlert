@@ -1,0 +1,412 @@
+{
+  "users": {
+    "student_1795513996555@test.com": {
+      "email": "student_1795513996555@test.com",
+      "name": "Alex Doe",
+      "password": "4b67c22fb7b7683726d7bb5a3e861c8b525edd5d09ab57ca29abaddc195f779b",
+      "profileDone": true,
+      "profile": {
+        "name": "Alex Doe",
+        "qualification": "UG (Graduated)",
+        "course": "Computer Science",
+        "age": 22,
+        "category": "General",
+        "state": "Tamil Nadu",
+        "exams": [
+          "UPSC",
+          "GATE"
+        ]
+      },
+      "createdAt": "2026-11-24T09:53:16.559Z",
+      "qualification": "UG (Graduated)",
+      "course": "Computer Science",
+      "age": 22,
+      "category": "General",
+      "state": "Tamil Nadu",
+      "exams": [
+        "UPSC",
+        "GATE"
+      ],
+      "updatedAt": "2026-11-24T09:53:16.560Z",
+      "id": "user_1795516465440_xhwsu6o",
+      "username": "alex_doe"
+    },
+    "student_1795514035472@test.com": {
+      "email": "student_1795514035472@test.com",
+      "name": "Alex Doe",
+      "password": "4b67c22fb7b7683726d7bb5a3e861c8b525edd5d09ab57ca29abaddc195f779b",
+      "profileDone": true,
+      "profile": {
+        "name": "Alex Doe",
+        "qualification": "UG (Graduated)",
+        "course": "Computer Science",
+        "age": 22,
+        "category": "General",
+        "state": "Tamil Nadu",
+        "exams": [
+          "UPSC",
+          "GATE"
+        ]
+      },
+      "createdAt": "2026-11-24T09:53:55.474Z",
+      "qualification": "UG (Graduated)",
+      "course": "Computer Science",
+      "age": 22,
+      "category": "General",
+      "state": "Tamil Nadu",
+      "exams": [
+        "UPSC",
+        "GATE"
+      ],
+      "updatedAt": "2026-11-24T09:53:55.474Z",
+      "id": "user_1795516465440_ytnqe09",
+      "username": "alex_doe"
+    },
+    "student_1795514209287@test.com": {
+      "email": "student_1795514209287@test.com",
+      "name": "Alex Doe",
+      "password": "4b67c22fb7b7683726d7bb5a3e861c8b525edd5d09ab57ca29abaddc195f779b",
+      "profileDone": true,
+      "profile": {
+        "name": "Alex Doe",
+        "qualification": "UG (Graduated)",
+        "course": "Computer Science",
+        "age": 22,
+        "category": "General",
+        "state": "Tamil Nadu",
+        "exams": [
+          "UPSC",
+          "GATE"
+        ]
+      },
+      "createdAt": "2026-11-24T09:56:49.290Z",
+      "qualification": "UG (Graduated)",
+      "course": "Computer Science",
+      "age": 22,
+      "category": "General",
+      "state": "Tamil Nadu",
+      "exams": [
+        "UPSC",
+        "GATE"
+      ],
+      "updatedAt": "2026-11-24T09:56:49.290Z",
+      "id": "user_1795516465440_ya3sby9",
+      "username": "alex_doe"
+    },
+    "student_1795514743340@test.com": {
+      "email": "student_1795514743340@test.com",
+      "name": "Alex Doe",
+      "password": "4b67c22fb7b7683726d7bb5a3e861c8b525edd5d09ab57ca29abaddc195f779b",
+      "profileDone": true,
+      "profile": {
+        "name": "Alex Doe",
+        "qualification": "UG (Graduated)",
+        "course": "Computer Science",
+        "age": 22,
+        "category": "General",
+        "state": "Tamil Nadu",
+        "exams": [
+          "UPSC",
+          "GATE"
+        ]
+      },
+      "createdAt": "2026-11-24T10:05:43.344Z",
+      "qualification": "UG (Graduated)",
+      "course": "Computer Science",
+      "age": 22,
+      "category": "General",
+      "state": "Tamil Nadu",
+      "exams": [
+        "UPSC",
+        "GATE"
+      ],
+      "updatedAt": "2026-11-24T10:05:43.345Z",
+      "id": "user_1795516465440_dw1fncq",
+      "username": "alex_doe"
+    },
+    "student_1795515217326@test.com": {
+      "email": "student_1795515217326@test.com",
+      "name": "Alex Doe",
+      "password": "4b67c22fb7b7683726d7bb5a3e861c8b525edd5d09ab57ca29abaddc195f779b",
+      "profileDone": true,
+      "profile": {
+        "name": "Alex Doe",
+        "qualification": "UG (Graduated)",
+        "course": "Computer Science",
+        "age": 22,
+        "category": "General",
+        "state": "Tamil Nadu",
+        "exams": [
+          "UPSC",
+          "GATE"
+        ]
+      },
+      "createdAt": "2026-11-24T10:13:37.328Z",
+      "qualification": "UG (Graduated)",
+      "course": "Computer Science",
+      "age": 22,
+      "category": "General",
+      "state": "Tamil Nadu",
+      "exams": [
+        "UPSC",
+        "GATE"
+      ],
+      "updatedAt": "2026-11-24T10:13:37.330Z",
+      "id": "user_1795516465440_sk8yp5t",
+      "username": "alex_doe"
+    },
+    "student_1795515325417@test.com": {
+      "email": "student_1795515325417@test.com",
+      "name": "Alex Doe",
+      "password": "4b67c22fb7b7683726d7bb5a3e861c8b525edd5d09ab57ca29abaddc195f779b",
+      "profileDone": true,
+      "profile": {
+        "name": "Alex Doe",
+        "qualification": "UG (Graduated)",
+        "course": "Computer Science",
+        "age": 22,
+        "category": "General",
+        "state": "Tamil Nadu",
+        "exams": [
+          "UPSC",
+          "GATE"
+        ]
+      },
+      "createdAt": "2026-11-24T10:15:25.421Z",
+      "qualification": "UG (Graduated)",
+      "course": "Computer Science",
+      "age": 22,
+      "category": "General",
+      "state": "Tamil Nadu",
+      "exams": [
+        "UPSC",
+        "GATE"
+      ],
+      "updatedAt": "2026-11-24T10:15:25.422Z",
+      "id": "user_1795516465440_dwaooy4",
+      "username": "alex_doe"
+    },
+    "student_1795516465441@test.com": {
+      "id": "cea432eb-1e2f-49a0-9698-8e1398e2ab85",
+      "username": "user_465441",
+      "email": "student_1795516465441@test.com",
+      "password": "$2b$10$6EgeSTOYGXOhvTDHBicgyO83R5RN9yPVYIhi0ps9S4SKKvbWGzP8e",
+      "name": "Alex Doe",
+      "profileDone": true,
+      "profile": {
+        "name": "Alex Doe",
+        "qualification": "UG (Graduated)",
+        "course": "Computer Science",
+        "age": 22,
+        "category": "General",
+        "state": "Tamil Nadu",
+        "exams": [
+          "UPSC",
+          "GATE"
+        ]
+      },
+      "createdAt": "2026-11-24T10:34:25.496Z",
+      "qualification": "UG (Graduated)",
+      "course": "Computer Science",
+      "age": 22,
+      "category": "General",
+      "state": "Tamil Nadu",
+      "exams": [
+        "UPSC",
+        "GATE"
+      ],
+      "updatedAt": "2026-11-24T10:34:25.647Z"
+    },
+    "student_1795516551441@test.com": {
+      "id": "4cd845af-17c4-4a3a-bb34-09af2fa87986",
+      "username": "user_551441",
+      "email": "student_1795516551441@test.com",
+      "password": "$2b$10$8NRRXgfF/W5oaR5kk1u9q.js8M6rzKG25MzNdDlcMCpHt/O5liWk6",
+      "name": "Alex Doe",
+      "profileDone": true,
+      "profile": {
+        "name": "Alex Doe",
+        "qualification": "UG (Graduated)",
+        "course": "Computer Science",
+        "age": 22,
+        "category": "General",
+        "state": "Tamil Nadu",
+        "exams": [
+          "UPSC",
+          "GATE"
+        ]
+      },
+      "createdAt": "2026-11-24T10:35:51.496Z",
+      "qualification": "UG (Graduated)",
+      "course": "Computer Science",
+      "age": 22,
+      "category": "General",
+      "state": "Tamil Nadu",
+      "exams": [
+        "UPSC",
+        "GATE"
+      ],
+      "updatedAt": "2026-11-24T10:35:51.646Z"
+    },
+    "student_1795516588113@test.com": {
+      "id": "a1e213ed-902d-44e3-8211-4b0c24dbafef",
+      "username": "user_588113",
+      "email": "student_1795516588113@test.com",
+      "password": "$2b$10$sQcSjMzquDB9uw9ZJl7QGOoEPh17vVhmvJcfPrYf0Gm4OzOYNz.ya",
+      "name": "Alex Doe",
+      "profileDone": true,
+      "profile": {
+        "name": "Alex Doe",
+        "qualification": "UG (Graduated)",
+        "course": "Computer Science",
+        "age": 22,
+        "category": "General",
+        "state": "Tamil Nadu",
+        "exams": [
+          "UPSC",
+          "GATE"
+        ]
+      },
+      "createdAt": "2026-11-24T10:36:28.169Z",
+      "qualification": "UG (Graduated)",
+      "course": "Computer Science",
+      "age": 22,
+      "category": "General",
+      "state": "Tamil Nadu",
+      "exams": [
+        "UPSC",
+        "GATE"
+      ],
+      "updatedAt": "2026-11-24T10:36:28.319Z"
+    },
+    "nivash@gmail.com": {
+      "id": "38bcfb77-5379-4c1d-9a3e-4c3741372d12",
+      "username": "Nivashini",
+      "email": "nivash@gmail.com",
+      "password": "$2b$10$nQsCYfkNqd2d7PzYNa6Fcu9a6m1LjxrQErBIVFoug7f4O0X7qTdsG",
+      "name": "Nivashini",
+      "profileDone": true,
+      "profile": {
+        "name": "Nivashini",
+        "qualification": "UG",
+        "course": "B.Tech IT",
+        "age": 19,
+        "category": "OBC",
+        "state": "Tamil Nadu",
+        "exams": [
+          "TNPSC",
+          "Railway",
+          "Engineering Exams (GATE/ESE)",
+          "Banking",
+          "SSC",
+          "UPSC",
+          "Teaching",
+          "Defence",
+          "State PSC"
+        ]
+      },
+      "createdAt": "2026-11-24T10:39:29.843Z",
+      "qualification": "UG",
+      "course": "B.Tech IT",
+      "age": 19,
+      "category": "OBC",
+      "state": "Tamil Nadu",
+      "exams": [
+        "TNPSC",
+        "Railway",
+        "Engineering Exams (GATE/ESE)",
+        "Banking",
+        "SSC",
+        "UPSC",
+        "Teaching",
+        "Defence",
+        "State PSC"
+      ],
+      "updatedAt": "2026-11-24T10:40:04.239Z"
+    }
+  },
+  "alerts": {
+    "student_1795513996555@test.com": [],
+    "student_1795514035472@test.com": [],
+    "student_1795514209287@test.com": [],
+    "student_1795514743340@test.com": [],
+    "student_1795515217326@test.com": [],
+    "student_1795515325417@test.com": [],
+    "student_1795516465441@test.com": [],
+    "student_1795516551441@test.com": [],
+    "student_1795516588113@test.com": [],
+    "nivash@gmail.com": [
+      {
+        "id": "d9219405-4b78-45d6-9b1a-eda058e9c326",
+        "title": "SLB result",
+        "date": "2026-11-27",
+        "category": "Result",
+        "note": "",
+        "completed": false,
+        "createdAt": "2026-11-24T10:40:41.818Z"
+      },
+      {
+        "id": "835b780c-8276-4a3d-bc5e-39b54dcb2c9e",
+        "title": "PM Scholarship Scheme 2026-27",
+        "date": "2026-12-19",
+        "category": "Scholarship",
+        "note": "Central sector scholarship for meritorious students pursuing higher education.",
+        "completed": false,
+        "createdAt": "2026-11-24T10:40:49.845Z"
+      }
+    ]
+  },
+  "otps": {
+    "student_1795513996555@test.com": {
+      "otp": "431513",
+      "expires": 1795514596557,
+      "verified": true
+    },
+    "student_1795514035472@test.com": {
+      "otp": "797574",
+      "expires": 1795514635473,
+      "verified": true
+    },
+    "student_1795514209287@test.com": {
+      "otp": "105950",
+      "expires": 1795514809288,
+      "verified": true
+    },
+    "student_1795514743340@test.com": {
+      "otp": "329073",
+      "expires": 1795515343342,
+      "verified": true
+    },
+    "student_1795515217326@test.com": {
+      "otp": "645458",
+      "expires": 1795515817327,
+      "verified": true
+    },
+    "student_1795515325417@test.com": {
+      "otp": "732068",
+      "expires": 1795515925419,
+      "verified": true
+    },
+    "student_1795516465441@test.com": {
+      "otp": "485346",
+      "expires": 1795517065443,
+      "verified": true
+    },
+    "student_1795516551441@test.com": {
+      "otp": "147213",
+      "expires": 1795517151443,
+      "verified": true
+    },
+    "student_1795516588113@test.com": {
+      "otp": "480535",
+      "expires": 1795517188115,
+      "verified": true
+    }
+  },
+  "meta": {
+    "createdAt": "2026-11-24T09:52:43.095Z",
+    "version": "1.0.0",
+    "name": "EduAlert JSON Database",
+    "updatedAt": "2026-11-24T10:49:23.737Z"
+  }
+}

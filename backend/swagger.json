@@ -1,0 +1,535 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "EduAlert REST API Documentation",
+    "version": "1.0.0",
+    "description": "Comprehensive interactive API documentation for EduAlert backend services, covering Authentication, User Profiles, Alerts Management, Opportunities, and Health Monitoring."
+  },
+  "servers": [
+    {
+      "url": "http://localhost:5001",
+      "description": "Local Development Server"
+    },
+    {
+      "url": "http://127.0.0.1:5001",
+      "description": "Loopback Address"
+    }
+  ],
+  "tags": [
+    {
+      "name": "System",
+      "description": "Server health and status endpoints"
+    },
+    {
+      "name": "Authentication",
+      "description": "User registration, login, and OTP verification"
+    },
+    {
+      "name": "User Profile",
+      "description": "Student profile setup and management"
+    },
+    {
+      "name": "Alerts",
+      "description": "Personal deadline tracking and reminder alerts"
+    },
+    {
+      "name": "Opportunities",
+      "description": "Verified scholarships, competitive exams, and internships"
+    }
+  ],
+  "paths": {
+    "/": {
+      "get": {
+        "tags": ["System"],
+        "summary": "API Overview and Route Directory",
+        "description": "Returns status information and a summary of all available routes.",
+        "responses": {
+          "200": {
+            "description": "Server online status and directory"
+          }
+        }
+      }
+    },
+    "/api/health": {
+      "get": {
+        "tags": ["System"],
+        "summary": "Health Check & Database Status",
+        "description": "Returns server uptime, health status, and JSON database connectivity details.",
+        "responses": {
+          "200": {
+            "description": "System is healthy and database is connected"
+          }
+        }
+      }
+    },
+    "/api/auth/send-otp": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Send Email OTP",
+        "description": "Generates a 6-digit verification OTP for the provided email address (valid for 10 minutes).",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendOtpRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OTP generated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SendOtpResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid email address"
+          }
+        }
+      }
+    },
+    "/api/auth/verify-otp": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Verify OTP Code",
+        "description": "Verifies the 6-digit OTP previously sent to the user's email.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyOtpRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Email verified successfully"
+          },
+          "400": {
+            "description": "Invalid or expired OTP"
+          }
+        }
+      }
+    },
+    "/api/auth/register": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Register New Account",
+        "description": "Creates a new student account with hashed password and generates a Bearer token.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Registration successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthSuccessResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error (missing fields or password < 6 characters)"
+          },
+          "409": {
+            "description": "Email is already registered"
+          }
+        }
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "User Login",
+        "description": "Authenticates user credentials and returns a Bearer token.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthSuccessResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid email or password"
+          }
+        }
+      }
+    },
+    "/api/profile": {
+      "get": {
+        "tags": ["User Profile"],
+        "summary": "Get Profile",
+        "description": "Retrieves the authenticated user's profile information.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Profile data retrieved"
+          },
+          "401": {
+            "description": "Unauthorized - Missing or invalid Bearer token"
+          }
+        }
+      },
+      "post": {
+        "tags": ["User Profile"],
+        "summary": "Save or Update Profile",
+        "description": "Saves student academic qualifications, course, category, state, and exam interests.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProfileRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Profile updated successfully"
+          },
+          "400": {
+            "description": "Missing required fields (name, qualification, state)"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/alerts": {
+      "get": {
+        "tags": ["Alerts"],
+        "summary": "Get All Alerts",
+        "description": "Retrieves all saved deadline alerts for the logged-in user.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of user alerts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Alert"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      },
+      "post": {
+        "tags": ["Alerts"],
+        "summary": "Create Alert",
+        "description": "Creates a new deadline alert. Validates that the deadline date is not in the past.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AlertRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Alert created successfully"
+          },
+          "400": {
+            "description": "Invalid input or past date rejected"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/alerts/{id}": {
+      "put": {
+        "tags": ["Alerts"],
+        "summary": "Update Alert",
+        "description": "Updates an existing alert's title, date, category, note, or completed status.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Alert unique ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AlertUpdateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Alert updated successfully"
+          },
+          "404": {
+            "description": "Alert not found"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Alerts"],
+        "summary": "Delete Alert",
+        "description": "Deletes an alert by its ID.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Alert unique ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Alert deleted successfully"
+          },
+          "404": {
+            "description": "Alert not found"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/opportunities": {
+      "get": {
+        "tags": ["Opportunities"],
+        "summary": "List Active Opportunities",
+        "description": "Retrieves verified scholarships, exams, internships, results, and admit cards whose end date is today or in the future.",
+        "responses": {
+          "200": {
+            "description": "List of active opportunities",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Opportunity"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Enter the Bearer token received from /api/auth/login or /api/auth/register"
+      }
+    },
+    "schemas": {
+      "SendOtpRequest": {
+        "type": "object",
+        "required": ["email"],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "student@example.com"
+          }
+        }
+      },
+      "SendOtpResponse": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean", "example": true },
+          "message": { "type": "string", "example": "OTP sent to student@example.com" },
+          "demoOtp": { "type": "string", "example": "729104" }
+        }
+      },
+      "VerifyOtpRequest": {
+        "type": "object",
+        "required": ["email", "otp"],
+        "properties": {
+          "email": { "type": "string", "format": "email", "example": "student@example.com" },
+          "otp": { "type": "string", "example": "729104" }
+        }
+      },
+      "RegisterRequest": {
+        "type": "object",
+        "required": ["username", "email", "password"],
+        "properties": {
+          "username": { "type": "string", "example": "alexdoe", "minLength": 3, "maxLength": 30 },
+          "email": { "type": "string", "format": "email", "example": "student@example.com" },
+          "password": { "type": "string", "format": "password", "minLength": 6, "example": "Password123!" }
+        }
+      },
+      "LoginRequest": {
+        "type": "object",
+        "required": ["email", "password"],
+        "properties": {
+          "email": { "type": "string", "format": "email", "example": "student@example.com" },
+          "password": { "type": "string", "format": "password", "example": "Password123!" }
+        }
+      },
+      "AuthSuccessResponse": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean", "example": true },
+          "message": { "type": "string", "example": "Login successful" },
+          "token": { "type": "string", "example": "eyJhbGciOiJIUzI1NiIs..." },
+          "user": {
+            "type": "object",
+            "properties": {
+              "email": { "type": "string", "example": "student@example.com" },
+              "name": { "type": "string", "example": "Alex Doe" },
+              "profileDone": { "type": "boolean", "example": false }
+            }
+          }
+        }
+      },
+      "ProfileRequest": {
+        "type": "object",
+        "required": ["name", "qualification", "state"],
+        "properties": {
+          "name": { "type": "string", "example": "Alex Doe" },
+          "qualification": { "type": "string", "example": "UG (Graduated)" },
+          "course": { "type": "string", "example": "Computer Science" },
+          "age": { "type": "integer", "example": 22 },
+          "category": { "type": "string", "example": "General" },
+          "state": { "type": "string", "example": "Tamil Nadu" },
+          "exams": {
+            "type": "array",
+            "items": { "type": "string" },
+            "example": ["UPSC", "TNPSC"]
+          }
+        }
+      },
+      "Alert": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "example": "a4f89d3e-9c2b-42e1-95ec-31ad957e8412" },
+          "title": { "type": "string", "example": "TNPSC Group II Exam" },
+          "date": { "type": "string", "format": "date", "example": "2026-12-25" },
+          "category": { "type": "string", "example": "Exam" },
+          "note": { "type": "string", "example": "Check exam center location" },
+          "completed": { "type": "boolean", "example": false },
+          "createdAt": { "type": "string", "example": "2026-11-24T10:00:00.000Z" }
+        }
+      },
+      "AlertRequest": {
+        "type": "object",
+        "required": ["title", "date"],
+        "properties": {
+          "title": { "type": "string", "example": "TNPSC Group II Exam" },
+          "date": { "type": "string", "format": "date", "example": "2026-12-25" },
+          "category": { "type": "string", "example": "Exam" },
+          "note": { "type": "string", "example": "Check exam center location" }
+        }
+      },
+      "AlertUpdateRequest": {
+        "type": "object",
+        "properties": {
+          "title": { "type": "string", "example": "TNPSC Group II Exam" },
+          "date": { "type": "string", "format": "date", "example": "2026-12-25" },
+          "category": { "type": "string", "example": "Exam" },
+          "note": { "type": "string", "example": "Updated note" },
+          "completed": { "type": "boolean", "example": true }
+        }
+      },
+      "Opportunity": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "example": 1 },
+          "type": { "type": "string", "example": "Scholarship" },
+          "title": { "type": "string", "example": "PM Scholarship Scheme 2026-27" },
+          "eligibility": { "type": "string", "example": "10th/12th pass, family income < 6 LPA" },
+          "startDate": { "type": "string", "example": "2026-11-04" },
+          "endDate": { "type": "string", "example": "2026-12-19" },
+          "link": { "type": "string", "example": "https://scholarships.gov.in" },
+          "description": { "type": "string", "example": "Central sector scholarship for meritorious students." }
+        }
+      }
+    }
+  }
+}
+
