@@ -1,72 +1,75 @@
 import { useState, useEffect, useCallback } from "react";
 
-// ─── Logo as inline SVG/img ───────────────────────────────────────────────────
+// ─── API Configuration ────────────────────────────────────────────────────────
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5001";
+
+// ─── Logo URL ─────────────────────────────────────────────────────────────────
 const LOGO_URL = "/assets/logo.png";
 
-// ─── Hardcoded demo data ──────────────────────────────────────────────────────
+// ─── Hardcoded demo data (used as initial / offline fallback) ─────────────────
 const TODAY = new Date();
 const fmt = (d) => d.toISOString().split("T")[0];
 const addDays = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
 
-const OPPORTUNITIES = [
+const DEFAULT_OPPORTUNITIES = [
   {
-    id: 1, type: "Scholarship", title: "PM Scholarship Scheme 2025",
+    id: 1, type: "Scholarship", title: "PM Scholarship Scheme 2026-27",
     eligibility: "10th/12th pass, family income < 6 LPA",
-    startDate: fmt(addDays(TODAY, -30)), endDate: fmt(addDays(TODAY, 20)),
-    link: "https://scholarships.gov.in", description: "Central sector scholarship for meritorious students.",
+    startDate: fmt(addDays(TODAY, -20)), endDate: fmt(addDays(TODAY, 25)),
+    link: "https://scholarships.gov.in", description: "Central sector scholarship for meritorious students pursuing higher education.",
     states: ["All"], courses: ["Any"], ageMin: 17, ageMax: 25,
   },
   {
     id: 2, type: "Scholarship", title: "NSP Post-Matric Scholarship (SC/ST)",
     eligibility: "SC/ST students, post-matric level",
-    startDate: fmt(addDays(TODAY, -10)), endDate: fmt(addDays(TODAY, 45)),
+    startDate: fmt(addDays(TODAY, -15)), endDate: fmt(addDays(TODAY, 40)),
     link: "https://scholarships.gov.in", description: "Financial assistance for SC/ST students pursuing higher education.",
     states: ["All"], courses: ["Any"], ageMin: 16, ageMax: 30,
   },
   {
-    id: 3, type: "Government Exam", title: "SSC CGL 2025 Tier-I",
+    id: 3, type: "Government Exam", title: "SSC CGL 2026-27 Tier-I",
     eligibility: "Any graduate, age 18-32",
-    startDate: fmt(addDays(TODAY, -5)), endDate: fmt(addDays(TODAY, 25)),
-    link: "https://ssc.nic.in", description: "Combined Graduate Level Examination for Group B & C posts.",
+    startDate: fmt(addDays(TODAY, -5)), endDate: fmt(addDays(TODAY, 20)),
+    link: "https://ssc.nic.in", description: "Combined Graduate Level Examination for Group B & C posts across ministries.",
     states: ["All"], courses: ["Graduation"], ageMin: 18, ageMax: 32,
   },
   {
-    id: 4, type: "Government Exam", title: "TNPSC Group II 2025",
+    id: 4, type: "Government Exam", title: "TNPSC Group II 2026-27",
     eligibility: "Any degree, Tamil Nadu domicile preferred",
-    startDate: fmt(addDays(TODAY, -15)), endDate: fmt(addDays(TODAY, 10)),
+    startDate: fmt(addDays(TODAY, -10)), endDate: fmt(addDays(TODAY, 15)),
     link: "https://www.tnpsc.gov.in", description: "Recruitment for various Group II posts in Tamil Nadu.",
     states: ["Tamil Nadu"], courses: ["Any"], ageMin: 18, ageMax: 32,
   },
   {
-    id: 5, type: "Internship", title: "ISRO Summer Internship 2025",
+    id: 5, type: "Internship", title: "ISRO Summer Research Internship",
     eligibility: "B.Tech/M.Tech students (3rd year+)",
-    startDate: fmt(addDays(TODAY, -20)), endDate: fmt(addDays(TODAY, 15)),
-    link: "https://www.isro.gov.in", description: "Research internship at ISRO centers across India.",
+    startDate: fmt(addDays(TODAY, -12)), endDate: fmt(addDays(TODAY, 18)),
+    link: "https://www.isro.gov.in", description: "Research internship at ISRO centers across India in aerospace and computer science.",
     states: ["All"], courses: ["Engineering"], ageMin: 18, ageMax: 28,
   },
   {
-    id: 6, type: "Internship", title: "NASSCOM FutureSkills Internship",
+    id: 6, type: "Internship", title: "NASSCOM FutureSkills Tech Internship",
     eligibility: "CS/IT students, 2nd year onwards",
-    startDate: fmt(addDays(TODAY, 5)), endDate: fmt(addDays(TODAY, 60)),
-    link: "https://nasscom.in", description: "Industry-led tech internship for budding professionals.",
+    startDate: fmt(addDays(TODAY, 2)), endDate: fmt(addDays(TODAY, 45)),
+    link: "https://nasscom.in", description: "Industry-led tech internship in AI, full stack development, and cloud computing.",
     states: ["All"], courses: ["Engineering", "Science"], ageMin: 18, ageMax: 26,
   },
   {
-    id: 7, type: "Result", title: "UPSC Civil Services Prelims Result 2025",
+    id: 7, type: "Result", title: "UPSC Civil Services Prelims Result",
     eligibility: "All appeared candidates",
-    startDate: fmt(addDays(TODAY, 3)), endDate: fmt(addDays(TODAY, 30)),
-    link: "https://upsc.gov.in", description: "Result declaration for Civil Services Preliminary Examination.",
+    startDate: fmt(addDays(TODAY, 1)), endDate: fmt(addDays(TODAY, 28)),
+    link: "https://upsc.gov.in", description: "Result declaration and scorecard for Civil Services Preliminary Examination.",
     states: ["All"], courses: ["Any"], ageMin: 21, ageMax: 35,
   },
   {
-    id: 8, type: "Admit Card", title: "Banking (IBPS PO) Admit Card 2025",
+    id: 8, type: "Admit Card", title: "Banking (IBPS PO) Admit Card",
     eligibility: "Registered IBPS PO candidates",
-    startDate: fmt(addDays(TODAY, 2)), endDate: fmt(addDays(TODAY, 18)),
-    link: "https://ibps.in", description: "Download admit card for IBPS Probationary Officer exam.",
+    startDate: fmt(addDays(TODAY, 0)), endDate: fmt(addDays(TODAY, 14)),
+    link: "https://ibps.in", description: "Download hall ticket and exam day instructions for IBPS Probationary Officer.",
     states: ["All"], courses: ["Graduation"], ageMin: 20, ageMax: 30,
   },
   {
-    id: 9, type: "Government Exam", title: "UPSC NDA Exam 2025",
+    id: 9, type: "Government Exam", title: "UPSC NDA Exam 2026",
     eligibility: "12th pass, age 16.5-19.5",
     startDate: fmt(addDays(TODAY, -40)), endDate: fmt(addDays(TODAY, -5)),
     link: "https://upsc.gov.in", description: "Expired — National Defence Academy Exam.",
@@ -82,25 +85,10 @@ const TYPE_COLORS = {
   "Admit Card": { bg: "#ffe4e6", text: "#9f1239", border: "#fda4af" },
 };
 
-const EXAM_INTERESTS = ["UPSC", "SSC", "Banking", "TNPSC", "Railway", "Defence", "State PSC", "Teaching","Engineering Exams (GATE/ESE)"];
+const EXAM_INTERESTS = ["UPSC", "SSC", "Banking", "TNPSC", "Railway", "Defence", "State PSC", "Teaching", "Engineering Exams (GATE/ESE)"];
 const CATEGORIES = ["Scholarship", "Government Exam", "Internship", "Result", "Admit Card"];
 const EVENT_CATEGORIES = ["Scholarship", "Exam", "Internship", "Result", "Personal"];
 const EVENT_CAT_COLORS = { Scholarship: "#0ea5e9", Exam: "#f59e0b", Internship: "#22c55e", Result: "#a855f7", Personal: "#f43f5e" };
-
-// ─── OTP via Claude API ──────────────────────────────────────────────────────
-async function sendOTPviaAI(email, otp) {
-  try {
-    await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        model: "claude-sonnet-4-20250514",
-        max_tokens: 100,
-        messages: [{ role: "user", content: `Acknowledge that OTP ${otp} has been prepared for ${email}. Reply in one short sentence.` }],
-      }),
-    });
-  } catch (_) {}
-}
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 function daysLeft(dateStr) {
@@ -131,48 +119,88 @@ function CountdownBadge({ endDate }) {
 // LOGIN / REGISTER
 function AuthPage({ onLogin }) {
   const [tab, setTab] = useState("login");
-  const [form, setForm] = useState({ email: "", password: "", mobile: "", otp: "" });
-  const [generatedOTP, setGeneratedOTP] = useState(null);
-  const [otpSent, setOtpSent] = useState(false);
-  const [otpVerified, setOtpVerified] = useState(false);
+  const [form, setForm] = useState({ username: "", email: "", password: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState("");
 
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
 
-  async function sendOTP() {
-    if (!form.email.includes("@")) { setError("Enter a valid email."); return; }
-    setLoading(true); setError("");
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    setGeneratedOTP(otp);
-    await sendOTPviaAI(form.email, otp);
-    setOtpSent(true);
-    setMsg(`OTP sent! (Demo OTP: ${otp})`);
-    setLoading(false);
+  // Sign In via Backend API
+  async function handleLogin() {
+    if (!form.email || !form.password) {
+      setError("Please fill in both email/username and password.");
+      return;
+    }
+    setLoading(true);
+    setError("");
+    setMsg("");
+
+    try {
+      const res = await fetch(`${API_URL}/api/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: form.email.trim(), password: form.password })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Invalid credentials.");
+      }
+      onLogin(data.user, data.token);
+    } catch (err) {
+      setError(err.message || "Login failed. Ensure backend server is running on port 5001.");
+    } finally {
+      setLoading(false);
+    }
   }
 
-  function verifyOTP() {
-    if (form.otp === generatedOTP) { setOtpVerified(true); setError(""); setMsg("✅ Email verified!"); }
-    else { setError("Invalid OTP. Try again."); }
-  }
+  // Register via Backend API (No OTP required)
+  async function handleRegister() {
+    if (!form.username || !form.email || !form.password) {
+      setError("Please fill in all fields (username, email, and password).");
+      return;
+    }
+    if (form.username.trim().length < 3) {
+      setError("Username must be at least 3 characters long.");
+      return;
+    }
+    if (!form.email.includes("@") || !form.email.includes(".")) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+    if (form.password.length < 6) {
+      setError("Password must be at least 6 characters long.");
+      return;
+    }
 
-  function handleLogin() {
-    if (!form.email || !form.password) { setError("Fill all fields."); return; }
-    const users = JSON.parse(localStorage.getItem("edu_users") || "{}");
-    if (users[form.email] && users[form.email].password === form.password) {
-      onLogin({ email: form.email, ...users[form.email] });
-    } else { setError("Invalid credentials."); }
-  }
+    setLoading(true);
+    setError("");
+    setMsg("");
 
-  function handleRegister() {
-    if (!otpVerified) { setError("Please verify your email via OTP."); return; }
-    if (!form.password || form.password.length < 6) { setError("Password must be 6+ characters."); return; }
-    const users = JSON.parse(localStorage.getItem("edu_users") || "{}");
-    if (users[form.email]) { setError("Email already registered."); return; }
-    users[form.email] = { password: form.password, profileDone: false };
-    localStorage.setItem("edu_users", JSON.stringify(users));
-    onLogin({ email: form.email, profileDone: false });
+    try {
+      const res = await fetch(`${API_URL}/api/auth/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: form.username.trim(),
+          email: form.email.trim(),
+          password: form.password
+        })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Registration failed.");
+      }
+
+      // Success: redirect user to login tab with clear confirmation
+      setTab("login");
+      setMsg("✅ Registration successful! Please log in with your credentials.");
+      setForm((f) => ({ ...f, password: "", username: "" }));
+    } catch (err) {
+      setError(err.message || "Registration failed. Please check backend connection.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -193,27 +221,37 @@ function AuthPage({ onLogin }) {
         {msg && <div style={{ background: "#d1fae5", color: "#065f46", padding: "10px 14px", borderRadius: 8, marginBottom: 12, fontSize: 13 }}>{msg}</div>}
 
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          <input placeholder="Email address" value={form.email} onChange={set("email")} style={inputStyle} type="email" />
-
           {tab === "register" && (
-            <>
-              {!otpSent ? (
-                <button onClick={sendOTP} disabled={loading} style={btnOutline}>
-                  {loading ? "Sending…" : "Send OTP to Email"}
-                </button>
-              ) : !otpVerified ? (
-                <>
-                  <input placeholder="Enter 6-digit OTP" value={form.otp} onChange={set("otp")} style={inputStyle} maxLength={6} />
-                  <button onClick={verifyOTP} style={btnOutline}>Verify OTP</button>
-                </>
-              ) : null}
-            </>
+            <input
+              placeholder="Username (e.g. nivashini)"
+              value={form.username}
+              onChange={set("username")}
+              style={inputStyle}
+              type="text"
+              autoComplete="username"
+            />
           )}
 
-          <input placeholder="Password" value={form.password} onChange={set("password")} style={inputStyle} type="password" />
+          <input
+            placeholder={tab === "login" ? "Email address or username" : "Email address"}
+            value={form.email}
+            onChange={set("email")}
+            style={inputStyle}
+            type={tab === "login" ? "text" : "email"}
+            autoComplete="email"
+          />
 
-          <button onClick={tab === "login" ? handleLogin : handleRegister} style={btnPrimary}>
-            {tab === "login" ? "Sign In" : "Create Account"}
+          <input
+            placeholder="Password (min 6 characters)"
+            value={form.password}
+            onChange={set("password")}
+            style={inputStyle}
+            type="password"
+            autoComplete={tab === "login" ? "current-password" : "new-password"}
+          />
+
+          <button onClick={tab === "login" ? handleLogin : handleRegister} disabled={loading} style={btnPrimary}>
+            {loading ? "Please wait..." : (tab === "login" ? "Sign In" : "Create Account")}
           </button>
 
           <div style={{ display: "flex", alignItems: "center", gap: 8, margin: "4px 0" }}>
@@ -233,17 +271,52 @@ function AuthPage({ onLogin }) {
 }
 
 // PROFILE SETUP
-function ProfileSetup({ user, onDone }) {
-  const [form, setForm] = useState({ name: "", qualification: "", course: "", age: "", category: "General", state: "", exams: [] });
+function ProfileSetup({ user, token, onDone }) {
+  const [form, setForm] = useState({
+    name: user?.name || user?.profile?.name || "",
+    qualification: user?.qualification || user?.profile?.qualification || "",
+    course: user?.course || user?.profile?.course || "",
+    age: user?.age || user?.profile?.age || "",
+    category: user?.category || user?.profile?.category || "General",
+    state: user?.state || user?.profile?.state || "",
+    exams: user?.exams || user?.profile?.exams || []
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
   const toggleExam = (ex) => setForm((f) => ({ ...f, exams: f.exams.includes(ex) ? f.exams.filter((x) => x !== ex) : [...f.exams, ex] }));
 
-  function save() {
-    if (!form.name || !form.qualification || !form.state) { alert("Please fill required fields."); return; }
-    const users = JSON.parse(localStorage.getItem("edu_users") || "{}");
-    users[user.email] = { ...users[user.email], ...form, profileDone: true };
-    localStorage.setItem("edu_users", JSON.stringify(users));
-    onDone({ ...user, ...form, profileDone: true });
+  // Save profile to backend API
+  async function save() {
+    if (!form.name || !form.qualification || !form.state) {
+      setError("Please fill all required fields marked with *.");
+      return;
+    }
+    setLoading(true);
+    setError("");
+
+    try {
+      const res = await fetch(`${API_URL}/api/profile`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token && { "Authorization": `Bearer ${token}` })
+        },
+        body: JSON.stringify(form)
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to save profile");
+      }
+      onDone(data.user || { ...user, ...form, profileDone: true });
+    } catch (err) {
+      console.warn("Backend save profile error, falling back locally:", err);
+      // Fallback update
+      onDone({ ...user, ...form, profileDone: true });
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -254,11 +327,12 @@ function ProfileSetup({ user, onDone }) {
           <h2 style={{ margin: 0, fontSize: 22, color: "#0f172a", fontWeight: 700 }}>Complete Your Profile</h2>
           <p style={{ margin: "6px 0 0", color: "#64748b", fontSize: 13 }}>Help us personalize opportunities for you</p>
         </div>
+        {error && <div style={{ background: "#fee2e2", color: "#b91c1c", padding: "10px 14px", borderRadius: 8, marginBottom: 12, fontSize: 13 }}>{error}</div>}
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           <input placeholder="Full Name *" value={form.name} onChange={set("name")} style={inputStyle} />
           <select value={form.qualification} onChange={set("qualification")} style={inputStyle}>
             <option value="">Educational Qualification *</option>
-            {["10th", "12th", "Diploma", "UG","UG (Graduated)", "PG","PG (Graduated)", "PhD"].map((q) => <option key={q}>{q}</option>)}
+            {["10th", "12th", "Diploma", "UG", "UG (Graduated)", "PG", "PG (Graduated)", "PhD"].map((q) => <option key={q}>{q}</option>)}
           </select>
           <input placeholder="Course / Field of Study" value={form.course} onChange={set("course")} style={inputStyle} />
           <div style={{ display: "flex", gap: 10 }}>
@@ -281,7 +355,9 @@ function ProfileSetup({ user, onDone }) {
               ))}
             </div>
           </div>
-          <button onClick={save} style={btnPrimary}>Save & Continue →</button>
+          <button onClick={save} disabled={loading} style={btnPrimary}>
+            {loading ? "Saving Profile..." : "Save & Continue →"}
+          </button>
         </div>
       </div>
     </div>
@@ -289,12 +365,116 @@ function ProfileSetup({ user, onDone }) {
 }
 
 // MAIN APP SHELL
-function AppShell({ user, onLogout }) {
+function AppShell({ user, token, onLogout }) {
   const [page, setPage] = useState("dashboard");
-  const [alerts, setAlerts] = useState(() => JSON.parse(localStorage.getItem(`edu_alerts_${user.email}`) || "[]"));
+  const [alerts, setAlerts] = useState([]);
   const [notifications, setNotifications] = useState([]);
 
-  const saveAlerts = (arr) => { setAlerts(arr); localStorage.setItem(`edu_alerts_${user.email}`, JSON.stringify(arr)); };
+  // Fetch alerts from backend API
+  const fetchAlerts = useCallback(async () => {
+    if (!token) return;
+    try {
+      const res = await fetch(`${API_URL}/api/alerts`, {
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data)) {
+          setAlerts(data);
+          localStorage.setItem(`edu_alerts_${user.email}`, JSON.stringify(data));
+          return;
+        }
+      }
+    } catch (err) {
+      console.warn("Could not fetch alerts from backend, using cached alerts:", err);
+    }
+    // Fallback to local storage if offline
+    const cached = JSON.parse(localStorage.getItem(`edu_alerts_${user.email}`) || "[]");
+    setAlerts(cached);
+  }, [token, user.email]);
+
+  useEffect(() => {
+    fetchAlerts();
+  }, [fetchAlerts]);
+
+  // Create alert via backend API
+  async function handleCreateAlert(alertData) {
+    if (!token) {
+      const newAlert = { id: Date.now(), ...alertData, completed: false, createdAt: fmt(TODAY) };
+      const updated = [...alerts, newAlert];
+      setAlerts(updated);
+      localStorage.setItem(`edu_alerts_${user.email}`, JSON.stringify(updated));
+      return { success: true, alert: newAlert };
+    }
+    try {
+      const res = await fetch(`${API_URL}/api/alerts`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify(alertData)
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to create alert");
+      await fetchAlerts();
+      return { success: true, alert: data.alert };
+    } catch (err) {
+      alert(err.message || "Failed to create alert");
+      return { success: false, error: err.message };
+    }
+  }
+
+  // Update alert via backend API
+  async function handleUpdateAlert(id, updateData) {
+    if (!token) {
+      const updated = alerts.map((a) => (a.id === id ? { ...a, ...updateData } : a));
+      setAlerts(updated);
+      localStorage.setItem(`edu_alerts_${user.email}`, JSON.stringify(updated));
+      return { success: true };
+    }
+    try {
+      const res = await fetch(`${API_URL}/api/alerts/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify(updateData)
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to update alert");
+      await fetchAlerts();
+      return { success: true };
+    } catch (err) {
+      alert(err.message || "Failed to update alert");
+      return { success: false, error: err.message };
+    }
+  }
+
+  // Delete alert via backend API
+  async function handleDeleteAlert(id) {
+    if (!window.confirm("Are you sure you want to delete this alert?")) return;
+    if (!token) {
+      const updated = alerts.filter((a) => a.id !== id);
+      setAlerts(updated);
+      localStorage.setItem(`edu_alerts_${user.email}`, JSON.stringify(updated));
+      return { success: true };
+    }
+    try {
+      const res = await fetch(`${API_URL}/api/alerts/${id}`, {
+        method: "DELETE",
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to delete alert");
+      await fetchAlerts();
+      return { success: true };
+    } catch (err) {
+      alert(err.message || "Failed to delete alert");
+      return { success: false, error: err.message };
+    }
+  }
 
   // Generate notifications from alerts
   useEffect(() => {
@@ -344,17 +524,17 @@ function AppShell({ user, onLogout }) {
 
       {/* Content */}
       <div style={{ flex: 1, overflow: "auto" }}>
-        {page === "dashboard" && <DashboardHome user={user} alerts={alerts} notifications={notifications} setPage={setPage} />}
-        {page === "calendar" && <CalendarPage alerts={alerts} saveAlerts={saveAlerts} />}
-        {page === "opportunities" && <OpportunitiesPage user={user} alerts={alerts} saveAlerts={saveAlerts} />}
-        {page === "notifications" && <NotificationsPage notifications={notifications} alerts={alerts} saveAlerts={saveAlerts} />}
+        {page === "dashboard" && <DashboardHome user={user} alerts={alerts} setPage={setPage} />}
+        {page === "calendar" && <CalendarPage alerts={alerts} onCreateAlert={handleCreateAlert} onUpdateAlert={handleUpdateAlert} onDeleteAlert={handleDeleteAlert} />}
+        {page === "opportunities" && <OpportunitiesPage alerts={alerts} onCreateAlert={handleCreateAlert} token={token} />}
+        {page === "notifications" && <NotificationsPage notifications={notifications} alerts={alerts} onUpdateAlert={handleUpdateAlert} />}
       </div>
     </div>
   );
 }
 
 // DASHBOARD HOME
-function DashboardHome({ user, alerts, notifications, setPage }) {
+function DashboardHome({ user, alerts, setPage }) {
   const activeAlerts = alerts.filter(a => !a.completed);
   const urgent = activeAlerts.filter(a => daysLeft(a.date) <= 5 && daysLeft(a.date) >= 0);
   const upcoming = activeAlerts.filter(a => daysLeft(a.date) > 5).length;
@@ -370,10 +550,10 @@ function DashboardHome({ user, alerts, notifications, setPage }) {
       {/* Stats */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 16, marginBottom: 28 }}>
         {[
-          { label: "Active Alerts", value: activeAlerts.length, color: "#1d4ed8", bg: "#dbeafe" },
-          { label: "Urgent (≤5 days)", value: urgent.length, color: "#dc2626", bg: "#fee2e2" },
-          { label: "Upcoming", value: upcoming, color: "#059669", bg: "#d1fae5" },
-          { label: "Completed", value: completed, color: "#7c3aed", bg: "#ede9fe" },
+          { label: "Active Alerts", value: activeAlerts.length, color: "#1d4ed8" },
+          { label: "Urgent (≤5 days)", value: urgent.length, color: "#dc2626" },
+          { label: "Upcoming", value: upcoming, color: "#059669" },
+          { label: "Completed", value: completed, color: "#7c3aed" },
         ].map((s) => (
           <div key={s.label} style={{ background: "#fff", borderRadius: 14, padding: "18px 20px", boxShadow: "0 1px 6px rgba(0,0,0,0.06)" }}>
             <div style={{ fontSize: 32, fontWeight: 800, color: s.color }}>{s.value}</div>
@@ -416,7 +596,7 @@ function DashboardHome({ user, alerts, notifications, setPage }) {
 }
 
 // CALENDAR PAGE
-function CalendarPage({ alerts, saveAlerts }) {
+function CalendarPage({ alerts, onCreateAlert, onUpdateAlert, onDeleteAlert }) {
   const [view, setView] = useState("calendar");
   const [month, setMonth] = useState(TODAY.getMonth());
   const [year, setYear] = useState(TODAY.getFullYear());
@@ -429,32 +609,56 @@ function CalendarPage({ alerts, saveAlerts }) {
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const firstDay = new Date(year, month, 1).getDay();
   const monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  const todayStr = fmt(TODAY);
 
-  function openAdd(date = "") { setEditAlert(null); setForm({ title: "", date, category: "Exam", note: "" }); setShowForm(true); }
-  function openEdit(a) { setEditAlert(a); setForm({ title: a.title, date: a.date, category: a.category, note: a.note || "" }); setShowForm(true); }
+  function openAdd(date = "") {
+    if (date && date < todayStr) return; // Prevent selecting past dates from calendar cell
+    setEditAlert(null);
+    setForm({ title: "", date: date || todayStr, category: "Exam", note: "" });
+    setShowForm(true);
+  }
 
-  function saveAlert() {
-    if (!form.title || !form.date) { alert("Title and date required."); return; }
+  function openEdit(a) {
+    setEditAlert(a);
+    setForm({ title: a.title, date: a.date, category: a.category, note: a.note || "" });
+    setShowForm(true);
+  }
+
+  async function saveAlert() {
+    if (!form.title || !form.date) {
+      alert("Title and date are required.");
+      return;
+    }
+    if (form.date < todayStr) {
+      alert("Cannot create or set an alert for a past date.");
+      return;
+    }
     if (editAlert) {
-      saveAlerts(alerts.map(a => a.id === editAlert.id ? { ...a, ...form } : a));
+      await onUpdateAlert(editAlert.id, form);
     } else {
-      saveAlerts([...alerts, { id: Date.now(), ...form, completed: false, createdAt: fmt(TODAY) }]);
+      await onCreateAlert(form);
     }
     setShowForm(false);
   }
 
-  function deleteAlert(id) { if (window.confirm("Delete this alert?")) saveAlerts(alerts.filter(a => a.id !== id)); }
-  function toggleComplete(id) { saveAlerts(alerts.map(a => a.id === id ? { ...a, completed: !a.completed } : a)); }
+  function toggleComplete(a) {
+    onUpdateAlert(a.id, { completed: !a.completed });
+  }
 
   const alertsByDate = {};
-  alerts.forEach(a => { if (!alertsByDate[a.date]) alertsByDate[a.date] = []; alertsByDate[a.date].push(a); });
+  alerts.forEach(a => {
+    if (!alertsByDate[a.date]) alertsByDate[a.date] = [];
+    alertsByDate[a.date].push(a);
+  });
 
   return (
     <div style={{ padding: "28px 32px" }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24 }}>
         <h1 style={{ margin: 0, fontSize: 24, fontWeight: 800, color: "#0f172a" }}>📅 My Alert Calendar</h1>
         <div style={{ display: "flex", gap: 10 }}>
-          <button onClick={() => setView(view === "calendar" ? "list" : "calendar")} style={btnOutline}>{view === "calendar" ? "List View" : "Calendar View"}</button>
+          <button onClick={() => setView(view === "calendar" ? "list" : "calendar")} style={btnOutline}>
+            {view === "calendar" ? "List View" : "Calendar View"}
+          </button>
           <button onClick={() => openAdd()} style={btnPrimary}>+ Add Alert</button>
         </div>
       </div>
@@ -474,11 +678,25 @@ function CalendarPage({ alerts, saveAlerts }) {
             {Array(daysInMonth).fill(null).map((_, i) => {
               const day = i + 1;
               const dateStr = `${year}-${String(month+1).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
-              const isToday = dateStr === fmt(TODAY);
+              const isToday = dateStr === todayStr;
+              const isPast = dateStr < todayStr;
               const dayAlerts = alertsByDate[dateStr] || [];
               return (
-                <div key={day} onClick={() => openAdd(dateStr)} style={{ minHeight: 70, background: isToday ? "#dbeafe" : "#f8fafc", borderRadius: 8, padding: 6, cursor: "pointer", border: isToday ? "2px solid #1d4ed8" : "1px solid #e2e8f0", transition: "background .15s" }}>
-                  <div style={{ fontSize: 13, fontWeight: isToday ? 800 : 500, color: isToday ? "#1d4ed8" : "#374151", marginBottom: 3 }}>{day}</div>
+                <div
+                  key={day}
+                  onClick={() => !isPast && openAdd(dateStr)}
+                  style={{
+                    minHeight: 70,
+                    background: isToday ? "#dbeafe" : isPast ? "#f1f5f9" : "#f8fafc",
+                    opacity: isPast ? 0.6 : 1,
+                    borderRadius: 8,
+                    padding: 6,
+                    cursor: isPast ? "not-allowed" : "pointer",
+                    border: isToday ? "2px solid #1d4ed8" : "1px solid #e2e8f0",
+                    transition: "background .15s"
+                  }}
+                >
+                  <div style={{ fontSize: 13, fontWeight: isToday ? 800 : 500, color: isToday ? "#1d4ed8" : isPast ? "#94a3b8" : "#374151", marginBottom: 3 }}>{day}</div>
                   {dayAlerts.slice(0, 2).map(a => (
                     <div key={a.id} onClick={(e) => { e.stopPropagation(); openEdit(a); }} style={{ fontSize: 10, background: EVENT_CAT_COLORS[a.category] + "22", color: EVENT_CAT_COLORS[a.category], borderRadius: 4, padding: "1px 4px", marginBottom: 2, fontWeight: 600, overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis" }}>
                       {a.completed ? "✓ " : ""}{a.title}
@@ -493,18 +711,18 @@ function CalendarPage({ alerts, saveAlerts }) {
       ) : (
         <div>
           {alerts.length === 0 ? <div style={{ textAlign: "center", padding: 60, color: "#94a3b8" }}>No alerts yet. Add your first alert!</div> :
-            alerts.sort((a, b) => a.date.localeCompare(b.date)).map(a => (
+            [...alerts].sort((a, b) => a.date.localeCompare(b.date)).map(a => (
               <div key={a.id} style={{ background: "#fff", borderRadius: 14, padding: "16px 20px", marginBottom: 12, boxShadow: "0 1px 4px rgba(0,0,0,0.06)", display: "flex", alignItems: "center", gap: 14, opacity: a.completed ? 0.6 : 1 }}>
-                <div style={{ width: 6, height: 48, borderRadius: 4, background: EVENT_CAT_COLORS[a.category] }} />
+                <div style={{ width: 6, height: 48, borderRadius: 4, background: EVENT_CAT_COLORS[a.category] || "#3b82f6" }} />
                 <div style={{ flex: 1 }}>
                   <div style={{ fontWeight: 700, fontSize: 15, color: "#0f172a", textDecoration: a.completed ? "line-through" : "none" }}>{a.title}</div>
                   <div style={{ fontSize: 12, color: "#64748b", marginTop: 2 }}>{a.date} · {a.category}</div>
                 </div>
                 <CountdownBadge endDate={a.date} />
                 <div style={{ display: "flex", gap: 8 }}>
-                  <button onClick={() => toggleComplete(a.id)} style={{ ...btnOutline, padding: "4px 10px", fontSize: 12 }}>{a.completed ? "Undo" : "✓ Done"}</button>
+                  <button onClick={() => toggleComplete(a)} style={{ ...btnOutline, padding: "4px 10px", fontSize: 12 }}>{a.completed ? "Undo" : "✓ Done"}</button>
                   <button onClick={() => openEdit(a)} style={{ ...btnOutline, padding: "4px 10px", fontSize: 12 }}>Edit</button>
-                  <button onClick={() => deleteAlert(a.id)} style={{ ...btnOutline, padding: "4px 10px", fontSize: 12, color: "#dc2626", borderColor: "#fca5a5" }}>Del</button>
+                  <button onClick={() => onDeleteAlert(a.id)} style={{ ...btnOutline, padding: "4px 10px", fontSize: 12, color: "#dc2626", borderColor: "#fca5a5" }}>Del</button>
                 </div>
               </div>
             ))}
@@ -518,7 +736,7 @@ function CalendarPage({ alerts, saveAlerts }) {
             <h3 style={{ margin: "0 0 20px", fontSize: 18, fontWeight: 700 }}>{editAlert ? "Edit Alert" : "Add New Alert"}</h3>
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               <input placeholder="Event title *" value={form.title} onChange={set("title")} style={inputStyle} />
-              <input type="date" value={form.date} onChange={set("date")} style={inputStyle} />
+              <input type="date" value={form.date} min={todayStr} onChange={set("date")} style={inputStyle} />
               <select value={form.category} onChange={set("category")} style={inputStyle}>
                 {EVENT_CATEGORIES.map(c => <option key={c}>{c}</option>)}
               </select>
@@ -536,24 +754,55 @@ function CalendarPage({ alerts, saveAlerts }) {
 }
 
 // OPPORTUNITIES PAGE
-function OpportunitiesPage({ user, alerts, saveAlerts }) {
+function OpportunitiesPage({ alerts, onCreateAlert, token }) {
+  const [opportunities, setOpportunities] = useState(DEFAULT_OPPORTUNITIES);
   const [activeType, setActiveType] = useState("All");
   const [search, setSearch] = useState("");
   const [converted, setConverted] = useState({});
 
+  // Fetch verified opportunities from backend
+  useEffect(() => {
+    async function loadOpportunities() {
+      try {
+        const res = await fetch(`${API_URL}/api/opportunities`, {
+          headers: { ...(token && { "Authorization": `Bearer ${token}` }) }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data) && data.length > 0) {
+            setOpportunities(data);
+          }
+        }
+      } catch (err) {
+        console.warn("Could not fetch opportunities from backend, using fallback list:", err);
+      }
+    }
+    loadOpportunities();
+  }, [token]);
+
   // Filter: only show opportunities whose endDate >= today
-  const visible = OPPORTUNITIES.filter(op => {
+  const visible = opportunities.filter(op => {
     const endOk = new Date(op.endDate) >= TODAY;
     const typeOk = activeType === "All" || op.type === activeType;
     const searchOk = !search || op.title.toLowerCase().includes(search.toLowerCase()) || op.description.toLowerCase().includes(search.toLowerCase());
     return endOk && typeOk && searchOk;
   });
 
-  function convertToAlert(op) {
-    if (alerts.find(a => a.title === op.title)) { alert("Already in your alerts!"); return; }
-    const newAlert = { id: Date.now(), title: op.title, date: op.endDate, category: op.type === "Government Exam" ? "Exam" : op.type === "Scholarship" ? "Scholarship" : op.type === "Internship" ? "Internship" : "Exam", note: op.description, completed: false, createdAt: fmt(TODAY) };
-    saveAlerts([...alerts, newAlert]);
-    setConverted(c => ({ ...c, [op.id]: true }));
+  async function convertToAlert(op) {
+    if (alerts.find(a => a.title === op.title)) {
+      alert("Already in your alerts!");
+      return;
+    }
+    const cat = op.type === "Government Exam" ? "Exam" : op.type === "Scholarship" ? "Scholarship" : op.type === "Internship" ? "Internship" : "Exam";
+    const res = await onCreateAlert({
+      title: op.title,
+      date: op.endDate,
+      category: cat,
+      note: op.description
+    });
+    if (res && res.success) {
+      setConverted(c => ({ ...c, [op.id]: true }));
+    }
   }
 
   const alreadyAdded = (op) => !!alerts.find(a => a.title === op.title);
@@ -608,8 +857,10 @@ function OpportunitiesPage({ user, alerts, saveAlerts }) {
 }
 
 // NOTIFICATIONS PAGE
-function NotificationsPage({ notifications, alerts, saveAlerts }) {
-  function markDone(id) { saveAlerts(alerts.map(a => a.id === id ? { ...a, completed: true } : a)); }
+function NotificationsPage({ notifications, onUpdateAlert }) {
+  function markDone(id) {
+    onUpdateAlert(id, { completed: true });
+  }
 
   return (
     <div style={{ padding: "28px 32px" }}>
@@ -625,7 +876,7 @@ function NotificationsPage({ notifications, alerts, saveAlerts }) {
             const isUrgent = n.days >= 0 && n.days <= 5;
             const isOver = n.days < 0;
             return (
-              <div key={n.id} style={{ background: "#fff", borderRadius: 14, padding: "16px 20px", marginBottom: 12, boxShadow: "0 1px 4px rgba(0,0,0,0.06)", border: `1.5px solid ${isUrgent ? "#fca5a5" : isOver ? "#e2e8f0" : "#e2e8f0"}`, display: "flex", gap: 16, alignItems: "flex-start" }}>
+              <div key={n.id} style={{ background: "#fff", borderRadius: 14, padding: "16px 20px", marginBottom: 12, boxShadow: "0 1px 4px rgba(0,0,0,0.06)", border: `1.5px solid ${isUrgent ? "#fca5a5" : "#e2e8f0"}`, display: "flex", gap: 16, alignItems: "flex-start" }}>
                 <div style={{ width: 44, height: 44, borderRadius: 12, background: isUrgent ? "#fee2e2" : isOver ? "#f1f5f9" : "#dbeafe", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, flexShrink: 0 }}>
                   {isOver ? "⏰" : isUrgent ? "⚡" : "🔔"}
                 </div>
@@ -657,16 +908,82 @@ const btnOutline = { padding: "9px 18px", background: "#fff", color: "#374151", 
 // ─── ROOT ─────────────────────────────────────────────────────────────────────
 export default function App() {
   const [user, setUser] = useState(null);
+  const [token, setToken] = useState(() => localStorage.getItem("edu_token") || "");
+  const [initializing, setInitializing] = useState(true);
 
+  // Restore authenticated session on page load
   useEffect(() => {
-    const saved = localStorage.getItem("edu_session");
-    if (saved) { const u = JSON.parse(saved); const users = JSON.parse(localStorage.getItem("edu_users") || "{}"); if (users[u.email]) setUser({ ...u, ...users[u.email] }); }
+    async function restoreSession() {
+      const savedToken = localStorage.getItem("edu_token");
+      const savedSession = localStorage.getItem("edu_session");
+
+      if (savedToken) {
+        try {
+          const res = await fetch(`${API_URL}/api/profile`, {
+            headers: { "Authorization": `Bearer ${savedToken}` }
+          });
+          if (res.ok) {
+            const data = await res.json();
+            setUser(data.user || data);
+            setToken(savedToken);
+            setInitializing(false);
+            return;
+          }
+        } catch (_) {
+          // If backend is not reached, fall back to stored session
+        }
+      }
+
+      if (savedSession) {
+        try {
+          const u = JSON.parse(savedSession);
+          setUser(u);
+        } catch (_) {}
+      }
+
+      setInitializing(false);
+    }
+
+    restoreSession();
   }, []);
 
-  function onLogin(u) { setUser(u); localStorage.setItem("edu_session", JSON.stringify({ email: u.email })); }
-  function onLogout() { setUser(null); localStorage.removeItem("edu_session"); }
+  function onLogin(userData, userToken) {
+    setUser(userData);
+    if (userToken) {
+      setToken(userToken);
+      localStorage.setItem("edu_token", userToken);
+    }
+    localStorage.setItem("edu_session", JSON.stringify(userData));
+  }
+
+  function onLogout() {
+    setUser(null);
+    setToken("");
+    localStorage.removeItem("edu_token");
+    localStorage.removeItem("edu_session");
+  }
+
+  if (initializing) {
+    return (
+      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#0f172a", color: "#fff" }}>
+        <p>Loading EduAlert...</p>
+      </div>
+    );
+  }
 
   if (!user) return <AuthPage onLogin={onLogin} />;
-  if (!user.profileDone) return <ProfileSetup user={user} onDone={(u) => { setUser(u); localStorage.setItem("edu_session", JSON.stringify({ email: u.email })); }} />;
-  return <AppShell user={user} onLogout={onLogout} />;
+  if (!user.profileDone) {
+    return (
+      <ProfileSetup
+        user={user}
+        token={token}
+        onDone={(updatedUser) => {
+          setUser(updatedUser);
+          localStorage.setItem("edu_session", JSON.stringify(updatedUser));
+        }}
+      />
+    );
+  }
+
+  return <AppShell user={user} token={token} onLogout={onLogout} />;
 }
