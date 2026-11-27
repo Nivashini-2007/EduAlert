@@ -1,0 +1,245 @@
+// Prisma schema for EduAlert PostgreSQL database (`edualert_db`)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  STUDENT
+  ADMIN
+  MODERATOR
+}
+
+enum OpportunityCategory {
+  SCHOLARSHIP
+  INTERNSHIP
+  GOVT_EXAM
+  FELLOWSHIP
+  HIGHER_EDUCATION
+  RESULT
+  ADMIT_CARD
+  COMPETITION
+  WORKSHOP
+  PERSONAL_EVENT
+  OTHER
+}
+
+enum VerificationStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+  EXPIRED
+}
+
+enum OpportunityStatus {
+  UPCOMING
+  OPEN
+  CLOSED
+  ARCHIVED
+}
+
+enum ReminderFrequency {
+  ONCE
+  DAILY
+  WEEKLY
+  CUSTOM
+}
+
+enum AlertStatus {
+  ACTIVE
+  PAUSED
+  COMPLETED
+  EXPIRED
+  CANCELLED
+}
+
+enum NotificationStatus {
+  PENDING
+  SENT
+  FAILED
+  CANCELLED
+}
+
+enum NotificationType {
+  REMINDER
+  DAILY_DIGEST
+  OPPORTUNITY_UPDATE
+  TEST
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  username     String   @unique @db.VarChar(50)
+  email        String   @unique @db.VarChar(255)
+  passwordHash String   @map("password_hash") @db.VarChar(255)
+  role         UserRole @default(STUDENT)
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  profile            UserProfile?
+  savedOpportunities SavedOpportunity[]
+  alerts             UserAlert[]
+  notifications      Notification[]
+  logins             UserLogin[]
+  deviceTokens       UserDeviceToken[]
+
+  @@index([role])
+  @@index([createdAt])
+  @@map("users")
+}
+
+model UserProfile {
+  userId              Int                   @id @map("user_id")
+  fullName            String                @map("full_name") @db.VarChar(120)
+  educationLevel      String?               @map("education_level") @db.VarChar(100)
+  course              String?               @db.VarChar(150)
+  institution         String?               @db.VarChar(200)
+  state               String?               @db.VarChar(100)
+  interests           String[]              @default([])
+  preferredCategories OpportunityCategory[] @default([]) @map("preferred_categories")
+  updatedAt           DateTime              @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([state])
+  @@index([educationLevel])
+  @@map("user_profiles")
+}
+
+model Opportunity {
+  id                   Int                 @id @default(autoincrement())
+  title                String              @db.VarChar(255)
+  description          String              @db.Text
+  category             OpportunityCategory
+  eligibility          String              @db.Text
+  educationLevels      String[]            @default([]) @map("education_levels")
+  eligibleStates       String[]            @default([]) @map("eligible_states")
+  applicationStartDate DateTime?           @map("application_start_date") @db.Timestamptz(6)
+  applicationDeadline  DateTime?           @map("application_deadline") @db.Timestamptz(6)
+  requiredDocuments    String[]            @default([]) @map("required_documents")
+  applicationProcedure String?             @map("application_procedure") @db.Text
+  officialSourceUrl    String              @map("official_source_url") @db.VarChar(500)
+  sourceName           String              @map("source_name") @db.VarChar(150)
+  verificationStatus   VerificationStatus  @default(PENDING) @map("verification_status")
+  lastVerifiedAt       DateTime?           @map("last_verified_at") @db.Timestamptz(6)
+  status               OpportunityStatus   @default(UPCOMING)
+  createdAt            DateTime            @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  savedByUsers  SavedOpportunity[]
+  userAlerts    UserAlert[]
+  notifications Notification[]
+
+  @@unique([title, officialSourceUrl])
+  @@index([category])
+  @@index([status])
+  @@index([verificationStatus])
+  @@index([applicationDeadline])
+  @@index([category, status, applicationDeadline])
+  @@index([createdAt])
+  @@map("opportunities")
+}
+
+model SavedOpportunity {
+  id            Int      @id @default(autoincrement())
+  userId        Int      @map("user_id")
+  opportunityId Int      @map("opportunity_id")
+  savedAt       DateTime @default(now()) @map("saved_at") @db.Timestamptz(6)
+
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  opportunity Opportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, opportunityId])
+  @@index([userId])
+  @@index([opportunityId])
+  @@index([savedAt])
+  @@map("saved_opportunities")
+}
+
+model UserAlert {
+  id                Int                 @id @default(autoincrement())
+  userId            Int                 @map("user_id")
+  opportunityId     Int?                @map("opportunity_id")
+  title             String              @db.VarChar(255)
+  description       String?             @db.Text
+  eventDate         DateTime            @map("event_date") @db.Timestamptz(6)
+  category          OpportunityCategory @default(OTHER)
+  reminderFrequency ReminderFrequency   @default(ONCE) @map("reminder_frequency")
+  status            AlertStatus         @default(ACTIVE)
+  createdAt         DateTime            @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  opportunity   Opportunity?   @relation(fields: [opportunityId], references: [id], onDelete: SetNull)
+  notifications Notification[]
+
+  @@unique([userId, title, eventDate])
+  @@unique([userId, opportunityId])
+  @@index([userId])
+  @@index([opportunityId])
+  @@index([eventDate])
+  @@index([status])
+  @@index([userId, status, eventDate])
+  @@map("user_alerts")
+}
+
+model Notification {
+  id            Int                @id @default(autoincrement())
+  userId        Int                @map("user_id")
+  alertId       Int?               @map("alert_id")
+  opportunityId Int?               @map("opportunity_id")
+  type          NotificationType   @default(REMINDER)
+  title         String             @default("EduAlert Reminder") @db.VarChar(255)
+  message       String             @db.Text
+  scheduledAt   DateTime           @map("scheduled_at") @db.Timestamptz(6)
+  sentAt        DateTime?          @map("sent_at") @db.Timestamptz(6)
+  status        NotificationStatus @default(PENDING)
+  isRead        Boolean            @default(false) @map("is_read")
+  errorMessage  String?            @map("error_message") @db.Text
+  retryCount    Int                @default(0) @map("retry_count")
+  dedupeKey     String?            @unique @map("dedupe_key") @db.VarChar(255)
+  createdAt     DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  alert       UserAlert?   @relation(fields: [alertId], references: [id], onDelete: Cascade)
+  opportunity Opportunity? @relation(fields: [opportunityId], references: [id], onDelete: SetNull)
+
+  @@unique([alertId, scheduledAt])
+  @@index([userId])
+  @@index([userId, isRead])
+  @@index([alertId])
+  @@index([opportunityId])
+  @@index([status, scheduledAt])
+  @@map("notifications")
+}
+
+model UserDeviceToken {
+  id          Int      @id @default(autoincrement())
+  userId      Int      @map("user_id")
+  token       String   @unique @db.VarChar(500)
+  deviceLabel String?  @map("device_label") @db.VarChar(120)
+  isActive    Boolean  @default(true) @map("is_active")
+  lastUsedAt  DateTime @default(now()) @map("last_used_at") @db.Timestamptz(6)
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isActive])
+  @@map("user_device_tokens")
+}
+
+model UserLogin {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @map("user_id")
+  ipAddress String?  @map("ip_address") @db.VarChar(100)
+  userAgent String?  @map("user_agent") @db.VarChar(500)
+  loginAt   DateTime @default(now()) @map("login_at") @db.Timestamptz(6)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([loginAt])
+  @@map("user_logins")
+}

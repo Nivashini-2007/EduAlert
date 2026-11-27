@@ -13,24 +13,24 @@ const addDays = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); r
 
 const DEFAULT_OPPORTUNITIES = [
   {
-    id: 1, type: "Scholarship", title: "PM Scholarship Scheme 2026-27",
-    eligibility: "10th/12th pass, family income < 6 LPA",
+    id: 1, type: "Scholarship", title: "National Scholarship Portal (NSP) Central Sector Scheme",
+    eligibility: "12th pass (top 20th percentile), family income <= 4.5 LPA",
     startDate: fmt(addDays(TODAY, -20)), endDate: fmt(addDays(TODAY, 25)),
     link: "https://scholarships.gov.in", description: "Central sector scholarship for meritorious students pursuing higher education.",
     states: ["All"], courses: ["Any"], ageMin: 17, ageMax: 25,
   },
   {
-    id: 2, type: "Scholarship", title: "NSP Post-Matric Scholarship (SC/ST)",
-    eligibility: "SC/ST students, post-matric level",
+    id: 2, type: "Scholarship", title: "National Overseas Scholarship (NOS)",
+    eligibility: "SC/ST candidates with 60%+ marks in qualifying degree",
     startDate: fmt(addDays(TODAY, -15)), endDate: fmt(addDays(TODAY, 40)),
-    link: "https://scholarships.gov.in", description: "Financial assistance for SC/ST students pursuing higher education.",
-    states: ["All"], courses: ["Any"], ageMin: 16, ageMax: 30,
+    link: "https://www.dosje.gov.in/schemes-and-services/central-sector-scheme-of-national-overseas-scholarship/", description: "Financial assistance for meritorious Indian students to pursue Master's and Ph.D. abroad.",
+    states: ["All"], courses: ["Any"], ageMin: 18, ageMax: 35,
   },
   {
     id: 3, type: "Government Exam", title: "SSC CGL 2026-27 Tier-I",
     eligibility: "Any graduate, age 18-32",
     startDate: fmt(addDays(TODAY, -5)), endDate: fmt(addDays(TODAY, 20)),
-    link: "https://ssc.nic.in", description: "Combined Graduate Level Examination for Group B & C posts across ministries.",
+    link: "https://ssc.gov.in", description: "Combined Graduate Level Examination for Group B & C posts across ministries.",
     states: ["All"], courses: ["Graduation"], ageMin: 18, ageMax: 32,
   },
   {
@@ -41,18 +41,18 @@ const DEFAULT_OPPORTUNITIES = [
     states: ["Tamil Nadu"], courses: ["Any"], ageMin: 18, ageMax: 32,
   },
   {
-    id: 5, type: "Internship", title: "ISRO Summer Research Internship",
+    id: 5, type: "Internship", title: "ISRO Summer Research & Young Scientist Internship",
     eligibility: "B.Tech/M.Tech students (3rd year+)",
     startDate: fmt(addDays(TODAY, -12)), endDate: fmt(addDays(TODAY, 18)),
     link: "https://www.isro.gov.in", description: "Research internship at ISRO centers across India in aerospace and computer science.",
     states: ["All"], courses: ["Engineering"], ageMin: 18, ageMax: 28,
   },
   {
-    id: 6, type: "Internship", title: "NASSCOM FutureSkills Tech Internship",
-    eligibility: "CS/IT students, 2nd year onwards",
+    id: 6, type: "Government Exam", title: "Railway Recruitment Board (RRB NTPC)",
+    eligibility: "12th Pass or Bachelor's Degree, age 18-33",
     startDate: fmt(addDays(TODAY, 2)), endDate: fmt(addDays(TODAY, 45)),
-    link: "https://nasscom.in", description: "Industry-led tech internship in AI, full stack development, and cloud computing.",
-    states: ["All"], courses: ["Engineering", "Science"], ageMin: 18, ageMax: 26,
+    link: "https://indianrailways.gov.in/", description: "Centralized recruitment for Non-Technical Popular Categories in Indian Railways.",
+    states: ["All"], courses: ["Engineering", "Science", "Any"], ageMin: 18, ageMax: 33,
   },
   {
     id: 7, type: "Result", title: "UPSC Civil Services Prelims Result",
@@ -62,18 +62,18 @@ const DEFAULT_OPPORTUNITIES = [
     states: ["All"], courses: ["Any"], ageMin: 21, ageMax: 35,
   },
   {
-    id: 8, type: "Admit Card", title: "Banking (IBPS PO) Admit Card",
-    eligibility: "Registered IBPS PO candidates",
+    id: 8, type: "Admit Card", title: "GATE Admit Card & Entrance Examination",
+    eligibility: "3rd/4th year undergraduate or graduate in Engineering/Science",
     startDate: fmt(addDays(TODAY, 0)), endDate: fmt(addDays(TODAY, 14)),
-    link: "https://ibps.in", description: "Download hall ticket and exam day instructions for IBPS Probationary Officer.",
-    states: ["All"], courses: ["Graduation"], ageMin: 20, ageMax: 30,
+    link: "https://gate2025.iitr.ac.in/", description: "National entrance examination for M.Tech admissions and PSU recruitment.",
+    states: ["All"], courses: ["Graduation"], ageMin: 20, ageMax: 35,
   },
   {
-    id: 9, type: "Government Exam", title: "UPSC NDA Exam 2026",
-    eligibility: "12th pass, age 16.5-19.5",
-    startDate: fmt(addDays(TODAY, -40)), endDate: fmt(addDays(TODAY, -5)),
-    link: "https://upsc.gov.in", description: "Expired — National Defence Academy Exam.",
-    states: ["All"], courses: ["Science"], ageMin: 16, ageMax: 20,
+    id: 9, type: "Scholarship", title: "AICTE Pragati Scholarship for Girls",
+    eligibility: "Female students admitted to 1st year technical degree/diploma",
+    startDate: fmt(addDays(TODAY, -5)), endDate: fmt(addDays(TODAY, 35)),
+    link: "https://aicte.gov.in/", description: "Scholarship of Rs. 50,000 per annum for female technical education students.",
+    states: ["All"], courses: ["Engineering", "Diploma"], ageMin: 16, ageMax: 25,
   },
 ];
 
@@ -261,7 +261,7 @@ function AuthPage({ onLogin }) {
           </div>
 
           <button onClick={() => setMsg("Google login: configure OAuth in production.")} style={{ ...btnOutline, display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
-            <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+            <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" /><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" /><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" /><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" /></svg>
             Continue with Google
           </button>
         </div>
@@ -370,7 +370,29 @@ function AppShell({ user, token, onLogout }) {
   const [alerts, setAlerts] = useState([]);
   const [notifications, setNotifications] = useState([]);
 
-  // Fetch alerts from backend API
+  // Fetch alerts & notifications from backend API
+  const fetchNotifications = useCallback(async () => {
+    if (!token) return;
+    try {
+      const res = await fetch(`${API_URL}/api/notifications`, {
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data) && data.length > 0) {
+          const mapped = data.map(n => ({
+            id: n.id,
+            msg: n.msg || n.message || n.title,
+            days: 3,
+            title: n.title
+          }));
+          setNotifications(mapped);
+          return;
+        }
+      }
+    } catch (_) {}
+  }, [token]);
+
   const fetchAlerts = useCallback(async () => {
     if (!token) return;
     try {
@@ -382,6 +404,7 @@ function AppShell({ user, token, onLogout }) {
         if (Array.isArray(data)) {
           setAlerts(data);
           localStorage.setItem(`edu_alerts_${user.email}`, JSON.stringify(data));
+          fetchNotifications();
           return;
         }
       }
@@ -391,11 +414,12 @@ function AppShell({ user, token, onLogout }) {
     // Fallback to local storage if offline
     const cached = JSON.parse(localStorage.getItem(`edu_alerts_${user.email}`) || "[]");
     setAlerts(cached);
-  }, [token, user.email]);
+  }, [token, user.email, fetchNotifications]);
 
   useEffect(() => {
     fetchAlerts();
-  }, [fetchAlerts]);
+    fetchNotifications();
+  }, [fetchAlerts, fetchNotifications]);
 
   // Create alert via backend API
   async function handleCreateAlert(alertData) {
@@ -418,6 +442,7 @@ function AppShell({ user, token, onLogout }) {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to create alert");
       await fetchAlerts();
+      await fetchNotifications();
       return { success: true, alert: data.alert };
     } catch (err) {
       alert(err.message || "Failed to create alert");
@@ -445,6 +470,7 @@ function AppShell({ user, token, onLogout }) {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to update alert");
       await fetchAlerts();
+      await fetchNotifications();
       return { success: true };
     } catch (err) {
       alert(err.message || "Failed to update alert");
@@ -469,6 +495,7 @@ function AppShell({ user, token, onLogout }) {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to delete alert");
       await fetchAlerts();
+      await fetchNotifications();
       return { success: true };
     } catch (err) {
       alert(err.message || "Failed to delete alert");
@@ -476,19 +503,21 @@ function AppShell({ user, token, onLogout }) {
     }
   }
 
-  // Generate notifications from alerts
+  // Fallback notifications if backend has none
   useEffect(() => {
-    const notifs = alerts.filter(a => !a.completed).map(a => {
-      const days = daysLeft(a.date);
-      let msg = "";
-      if (days < 0) msg = `"${a.title}" deadline has passed.`;
-      else if (days === 0) msg = `🔔 TODAY is the deadline for "${a.title}"!`;
-      else if (days <= 5) msg = `⚡ Only ${days} day(s) left for "${a.title}"!`;
-      else msg = `📅 ${days} days until "${a.title}"`;
-      return { id: a.id, msg, days, title: a.title };
-    }).sort((a, b) => a.days - b.days);
-    setNotifications(notifs);
-  }, [alerts]);
+    if (notifications.length === 0 && alerts.length > 0) {
+      const notifs = alerts.filter(a => !a.completed).map(a => {
+        const days = daysLeft(a.date);
+        let msg = "";
+        if (days < 0) msg = `"${a.title}" deadline has passed.`;
+        else if (days === 0) msg = `🔔 TODAY is the deadline for "${a.title}"!`;
+        else if (days <= 5) msg = `⚡ Only ${days} day(s) left for "${a.title}"!`;
+        else msg = `📅 ${days} days until "${a.title}"`;
+        return { id: a.id, msg, days, title: a.title };
+      }).sort((a, b) => a.days - b.days);
+      setNotifications(notifs);
+    }
+  }, [alerts, notifications.length]);
 
   const navItems = [
     { id: "dashboard", label: "Dashboard", icon: "🏠" },
@@ -608,7 +637,7 @@ function CalendarPage({ alerts, onCreateAlert, onUpdateAlert, onDeleteAlert }) {
 
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const firstDay = new Date(year, month, 1).getDay();
-  const monthNames = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
   const todayStr = fmt(TODAY);
 
   function openAdd(date = "") {
@@ -666,18 +695,18 @@ function CalendarPage({ alerts, onCreateAlert, onUpdateAlert, onDeleteAlert }) {
       {view === "calendar" ? (
         <div style={{ background: "#fff", borderRadius: 16, padding: 24, boxShadow: "0 1px 6px rgba(0,0,0,0.06)" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
-            <button onClick={() => { if (month === 0) { setMonth(11); setYear(y => y-1); } else setMonth(m => m-1); }} style={{ ...btnOutline, padding: "6px 14px" }}>←</button>
+            <button onClick={() => { if (month === 0) { setMonth(11); setYear(y => y - 1); } else setMonth(m => m - 1); }} style={{ ...btnOutline, padding: "6px 14px" }}>←</button>
             <h3 style={{ margin: 0, fontWeight: 700, fontSize: 18, color: "#0f172a" }}>{monthNames[month]} {year}</h3>
-            <button onClick={() => { if (month === 11) { setMonth(0); setYear(y => y+1); } else setMonth(m => m+1); }} style={{ ...btnOutline, padding: "6px 14px" }}>→</button>
+            <button onClick={() => { if (month === 11) { setMonth(0); setYear(y => y + 1); } else setMonth(m => m + 1); }} style={{ ...btnOutline, padding: "6px 14px" }}>→</button>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(7,1fr)", gap: 2 }}>
-            {["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].map(d => (
+            {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(d => (
               <div key={d} style={{ textAlign: "center", fontSize: 12, fontWeight: 700, color: "#94a3b8", padding: "8px 0" }}>{d}</div>
             ))}
-            {Array(firstDay).fill(null).map((_, i) => <div key={"e"+i} />)}
+            {Array(firstDay).fill(null).map((_, i) => <div key={"e" + i} />)}
             {Array(daysInMonth).fill(null).map((_, i) => {
               const day = i + 1;
-              const dateStr = `${year}-${String(month+1).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
+              const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
               const isToday = dateStr === todayStr;
               const isPast = dateStr < todayStr;
               const dayAlerts = alertsByDate[dateStr] || [];
@@ -938,7 +967,7 @@ export default function App() {
         try {
           const u = JSON.parse(savedSession);
           setUser(u);
-        } catch (_) {}
+        } catch (_) { }
       }
 
       setInitializing(false);

@@ -62,63 +62,6 @@
         }
       }
     },
-    "/api/auth/send-otp": {
-      "post": {
-        "tags": ["Authentication"],
-        "summary": "Send Email OTP",
-        "description": "Generates a 6-digit verification OTP for the provided email address (valid for 10 minutes).",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/SendOtpRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OTP generated successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SendOtpResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid email address"
-          }
-        }
-      }
-    },
-    "/api/auth/verify-otp": {
-      "post": {
-        "tags": ["Authentication"],
-        "summary": "Verify OTP Code",
-        "description": "Verifies the 6-digit OTP previously sent to the user's email.",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/VerifyOtpRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Email verified successfully"
-          },
-          "400": {
-            "description": "Invalid or expired OTP"
-          }
-        }
-      }
-    },
     "/api/auth/register": {
       "post": {
         "tags": ["Authentication"],
@@ -182,6 +125,104 @@
           },
           "401": {
             "description": "Invalid email or password"
+          }
+        }
+      }
+    },
+    "/api/auth/logins": {
+      "get": {
+        "tags": ["Authentication"],
+        "summary": "Get User Login History",
+        "description": "Retrieves the login history recorded in the user_logins table for the authenticated user, including IP address, user agent, and exact login timestamp.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User login records retrieved from user_logins table",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "userId": { "type": "string" },
+                    "totalLogins": { "type": "integer" },
+                    "logins": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "string" },
+                          "userId": { "type": "string" },
+                          "ipAddress": { "type": "string" },
+                          "userAgent": { "type": "string" },
+                          "loginAt": { "type": "string", "format": "date-time" }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Missing or invalid Bearer token"
+          }
+        }
+      }
+    },
+    "/api/auth/logout": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "User Logout",
+        "description": "Logs out the authenticated user and clears session tokens.",
+        "responses": {
+          "200": {
+            "description": "Logged out successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean", "example": true },
+                    "message": { "type": "string", "example": "Logged out successfully" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/me": {
+      "get": {
+        "tags": ["Authentication"],
+        "summary": "Get Current Authenticated User",
+        "description": "Retrieves the authenticated user's record from PostgreSQL using Bearer JWT token.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authenticated user details retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean", "example": true },
+                    "user": { "$ref": "#/components/schemas/UserSafe" }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Missing or invalid Bearer token"
           }
         }
       }
