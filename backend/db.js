@@ -1,178 +1,160 @@
 // EduAlert - Database Manager
-// File-based JSON Database with schema validation, atomic writes, and health checks
+// PostgreSQL with Prisma ORM and @prisma/adapter-pg Driver Adapter
 
-const fs = require("fs");
 const path = require("path");
+const fs = require("fs");
+const { PrismaClient } = require("@prisma/client");
+const { PrismaPg } = require("@prisma/adapter-pg");
+const { Pool } = require("pg");
 
-const DB_FILENAME = process.env.DB_FILE || process.env.DATABASE_PATH || "db.json";
-const DB_PATH = path.isAbsolute(DB_FILENAME)
-  ? DB_FILENAME
-  : path.join(__dirname, DB_FILENAME);
+// Load .env
+require("dotenv").config({ path: path.join(__dirname, ".env") });
 
-const INITIAL_SCHEMA = {
-  users: {},
-  alerts: {},
-  meta: {
-    createdAt: new Date().toISOString(),
-    version: "1.0.0",
-    name: "EduAlert JSON Database"
-  }
-};
+const DATABASE_URL = process.env.DATABASE_URL || "postgresql://nivashini:postgres@localhost:5432/edualert_db?schema=public";
+
+// Initialize PostgreSQL Connection Pool
+const pool = new Pool({
+  connectionString: DATABASE_URL,
+});
+
+// Configure Prisma driver adapter
+const adapter = new PrismaPg(pool);
+const prisma = new PrismaClient({
+  adapter,
+  log: process.env.NODE_ENV === "development" ? ["warn", "error"] : ["error"],
+});
 
 /**
- * Initializes and establishes the database connection.
- * Runs before server starts listening to guarantee database availability.
+ * Initializes and establishes the PostgreSQL database connection.
+ * Runs before the server starts listening to guarantee database availability.
  */
-function initDB() {
+async function initDB() {
   try {
-    const dir = path.dirname(DB_PATH);
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
+    // 1. Verify PostgreSQL connection via raw query
+    await prisma.$queryRaw`SELECT 1`;
 
-    let data;
-    if (!fs.existsSync(DB_PATH)) {
-      console.log(`[Database] Database file not found. Creating new database at: ${DB_PATH}`);
-      fs.writeFileSync(DB_PATH, JSON.stringify(INITIAL_SCHEMA, null, 2), "utf-8");
-      data = INITIAL_SCHEMA;
-    } else {
-      const raw = fs.readFileSync(DB_PATH, "utf-8").trim();
-      if (!raw) {
-        console.warn(`[Database] Database file was empty. Reinitializing schema.`);
-        fs.writeFileSync(DB_PATH, JSON.stringify(INITIAL_SCHEMA, null, 2), "utf-8");
-        data = INITIAL_SCHEMA;
-      } else {
-        try {
-          data = JSON.parse(raw);
-        } catch (parseErr) {
-          const backupPath = `${DB_PATH}.corrupt.${Date.now()}`;
-          console.error(`[Database] Corrupted database JSON detected! Backing up to ${backupPath}`);
-          fs.writeFileSync(backupPath, raw, "utf-8");
-          fs.writeFileSync(DB_PATH, JSON.stringify(INITIAL_SCHEMA, null, 2), "utf-8");
-          data = INITIAL_SCHEMA;
-        }
-      }
-    }
+    const userCount = await prisma.user.count();
+    const oppCount = await prisma.opportunity.count();
+    const alertCount = await prisma.userAlert.count();
 
-    // Ensure core collections exist
-    let modified = false;
-    if (!data.users || typeof data.users !== "object") { data.users = {}; modified = true; }
-    if (!data.alerts || typeof data.alerts !== "object") { data.alerts = {}; modified = true; }
-    if (!data.meta) { data.meta = INITIAL_SCHEMA.meta; modified = true; }
+    console.log(`[Database] ✅ PostgreSQL connected successfully via Prisma!`);
+    console.log(`[Database] 📊 Target Database: edualert_db (schema: public)`);
+    console.log(`[Database] 📊 Current Counts: ${userCount} user(s), ${oppCount} opportunity(ies), ${alertCount} alert(s)`);
 
-    // Ensure all existing users have user ID, username, and valid structure
-    for (const [key, user] of Object.entries(data.users)) {
-      if (!user.id) {
-        user.id = `user_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
-        modified = true;
-      }
-      if (!user.username) {
-        user.username = (user.name || user.email.split("@")[0] || "user").toLowerCase().replace(/[^a-z0-9_]/g, "_");
-        modified = true;
-      }
-      if (!user.createdAt) {
-        user.createdAt = new Date().toISOString();
-        modified = true;
-      }
-    }
-
-    if (modified) {
-      fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2), "utf-8");
-    }
-
-    const userCount = Object.keys(data.users).length;
-    const alertCount = Object.keys(data.alerts).reduce(
-      (sum, email) => sum + (Array.isArray(data.alerts[email]) ? data.alerts[email].length : 0),
-      0
-    );
-
-    console.log(`[Database] ✅ Database connected successfully: ${DB_PATH}`);
-    console.log(`[Database] 📊 Loaded ${userCount} registered user(s), ${alertCount} alert(s)`);
+    // 2. Ensure SSC CGL 2026-27 Tier-I opportunity is seeded into PostgreSQL
+    await ensureSSCCGLOpportunity();
 
     return true;
   } catch (err) {
-    console.error(`[Database] ❌ Critical error connecting to database at ${DB_PATH}:`, err.message);
+    console.error(`[Database] ❌ Critical error connecting to PostgreSQL:`, err.message);
     throw err;
   }
 }
 
 /**
- * Safely reads the database content.
+ * Ensures the official SSC CGL 2026-27 Tier-I opportunity exists in PostgreSQL.
  */
-function readDB() {
+async function ensureSSCCGLOpportunity() {
   try {
-    if (!fs.existsSync(DB_PATH)) {
-      initDB();
+    const existing = await prisma.opportunity.findFirst({
+      where: {
+        title: { contains: "SSC CGL", mode: "insensitive" }
+      }
+    });
+
+    const now = new Date();
+    const startDate = new Date(now.getTime() - 5 * 24 * 60 * 60 * 1000);
+    const deadline = new Date(now.getTime() + 45 * 24 * 60 * 60 * 1000);
+
+    if (!existing) {
+      await prisma.opportunity.create({
+        data: {
+          title: "SSC CGL 2026-27 Tier-I",
+          description: "Combined Graduate Level Examination (Tier-I) for recruitment to Group B and Group C non-technical and gazetted posts across ministries, departments, and organizations of the Government of India.",
+          category: "GOVT_EXAM",
+          eligibility: "Bachelor's Degree from a recognized University or equivalent. Age: 18-32 years depending on post.",
+          educationLevels: ["Graduation", "Bachelor's Degree"],
+          eligibleStates: ["All India"],
+          applicationStartDate: startDate,
+          applicationDeadline: deadline,
+          officialSourceUrl: "https://ssc.gov.in",
+          sourceName: "Staff Selection Commission (GoI)",
+          verificationStatus: "VERIFIED",
+          status: "OPEN",
+          applicationProcedure: "Apply online at https://ssc.gov.in using One-Time Registration (OTR). Complete the online application form and upload scanned photograph and signature as per official notification guidelines."
+        }
+      });
+      console.log(`[Database] 🏛️  Seeded official opportunity: "SSC CGL 2026-27 Tier-I" into PostgreSQL`);
+    } else {
+      // Update link to official https://ssc.gov.in if legacy
+      if (existing.officialSourceUrl !== "https://ssc.gov.in") {
+        await prisma.opportunity.update({
+          where: { id: existing.id },
+          data: { officialSourceUrl: "https://ssc.gov.in" }
+        });
+      }
     }
-    const raw = fs.readFileSync(DB_PATH, "utf-8");
-    const data = JSON.parse(raw);
-    if (!data.users) data.users = {};
-    if (!data.alerts) data.alerts = {};
-    return data;
   } catch (err) {
-    console.error(`[Database] Error reading database:`, err.message);
-    initDB();
-    return JSON.parse(fs.readFileSync(DB_PATH, "utf-8"));
+    console.warn(`[Database] Note on seeding SSC CGL opportunity:`, err.message);
   }
 }
 
 /**
- * Safely writes data to the database using an atomic temporary write.
+ * Comprehensive PostgreSQL Database Health Check.
  */
-function writeDB(data) {
+async function checkDBHealth() {
   try {
-    data.meta = {
-      ...(data.meta || {}),
-      updatedAt: new Date().toISOString()
-    };
-    const tempPath = `${DB_PATH}.tmp.${Date.now()}`;
-    const serialized = JSON.stringify(data, null, 2);
-    fs.writeFileSync(tempPath, serialized, "utf-8");
-    fs.renameSync(tempPath, DB_PATH);
-    return true;
-  } catch (err) {
-    console.error(`[Database] Error writing to database:`, err.message);
+    const startTime = Date.now();
+    await prisma.$queryRaw`SELECT 1`;
+    const latencyMs = Date.now() - startTime;
+
+    const [userCount, oppCount, alertCount] = await Promise.all([
+      prisma.user.count(),
+      prisma.opportunity.count(),
+      prisma.userAlert.count()
+    ]);
+
+    // Parse host, port, db name from connection string
+    let host = "localhost";
+    let port = 5432;
+    let database = "edualert_db";
+    let user = "nivashini";
+
     try {
-      fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2), "utf-8");
-      return true;
-    } catch (writeErr) {
-      console.error(`[Database] Fallback write also failed:`, writeErr.message);
-      throw writeErr;
-    }
-  }
-}
+      const url = new URL(DATABASE_URL);
+      host = url.hostname || host;
+      port = parseInt(url.port || "5432", 10);
+      database = url.pathname.replace(/^\//, "").split("?")[0] || database;
+      user = url.username || user;
+    } catch (_) {}
 
-/**
- * Database health check helper.
- */
-function checkDBHealth() {
-  try {
-    if (!fs.existsSync(DB_PATH)) {
-      return { connected: false, error: "Database file does not exist" };
-    }
-    const stats = fs.statSync(DB_PATH);
-    const data = readDB();
     return {
       connected: true,
-      databaseType: "JSON Document Store",
-      path: DB_PATH,
-      sizeBytes: stats.size,
-      usersCount: Object.keys(data.users || {}).length,
-      alertsCount: Object.keys(data.alerts || {}).reduce(
-        (sum, email) => sum + (Array.isArray(data.alerts[email]) ? data.alerts[email].length : 0),
-        0
-      ),
-      lastModified: stats.mtime.toISOString()
+      databaseType: "PostgreSQL",
+      orm: "Prisma v7.10.1 (@prisma/adapter-pg)",
+      databaseName: database,
+      schema: "public",
+      host,
+      port,
+      user,
+      latencyMs,
+      usersCount: userCount,
+      opportunitiesCount: oppCount,
+      alertsCount: alertCount
     };
   } catch (err) {
-    return { connected: false, error: err.message };
+    return {
+      connected: false,
+      databaseType: "PostgreSQL",
+      error: err.message
+    };
   }
 }
 
 module.exports = {
-  DB_PATH,
+  prisma,
+  pool,
   initDB,
-  readDB,
-  writeDB,
-  checkDBHealth
+  checkDBHealth,
+  ensureSSCCGLOpportunity
 };
